@@ -32,7 +32,7 @@ hw_flow:depends("sw_flow", 1)
 end
 end
 
-if nixio.fs.access("/lib/modules/" .. kernel_version .. "/shortcut-fe-cm.ko") then
+if nixio.fs.access("/lib/modules/" .. kernel_version .. "/shortcut-fe-cm.ko") or nixio.fs.access("/lib/modules/" .. kernel_version .. "/fast-classifier.ko") then
 sfe_flow = s:option(Flag, "sfe_flow", translate("Shortcut-FE flow offloading"))
 sfe_flow.default = 0
 sfe_flow.description = translate("Shortcut-FE based offloading for routing/NAT")
@@ -51,13 +51,17 @@ fullcone_nat.default = 0
 fullcone_nat.description = translate("Using FullCone NAT can improve gaming performance effectively")
 end
 
+if nixio.fs.access("/usr/sbin/pdnsd") or nixio.fs.access("/usr/bin/dnsforwarder") or nixio.fs.access("/usr/bin/dnsproxy") then
 dns_caching = s:option(Flag, "dns_caching", translate("DNS Caching"))
 dns_caching.default = 0
 dns_caching.rmempty = false
 dns_caching.description = translate("Enable DNS Caching and anti ISP DNS pollution")
+end
 
 dns_caching_mode = s:option(ListValue, "dns_caching_mode", translate("Resolve DNS Mode"), translate("DNS Program"))
+if nixio.fs.access("/usr/sbin/pdnsd") then
 dns_caching_mode:value("1", translate("Using PDNSD to query and cache"))
+end
 if nixio.fs.access("/usr/bin/dnsforwarder") then
 dns_caching_mode:value("2", translate("Using DNSForwarder to query and cache"))
 end
